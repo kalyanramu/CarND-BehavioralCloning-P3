@@ -1,0 +1,19 @@
+1. Initially, with just fc layer...Training Loss was decreasing, val loss was increasing. 
+Epoch 20/20 ==> loss: 3.6909 - val_loss: 50.5373
+a) Imbalanced Data
+b) Model too simple
+c)
+
+Training Loss starting < Valid Loss in the beginning (Epoch 0/20) => Model is too simple
+
+2. Car is always turning left
+a) This is because of the way simular is designed....it has too many left turns
+
+Solution: We have to show the car how to drive to right side
+a) Find track with more right runs, drive around and collect data
+b) A better approach, flip the images and negate the steering angle
+
+3. When steers off to right or left...it doesn't know how to get back
+Solution:
+a) Create more data with driving towards curb and them getting back to center...record this and collect and new data
+b) A better approach, use left & right cameras..Left camera we are off, may be we can steer little bit to the right...add +0.25 to the steering angle
