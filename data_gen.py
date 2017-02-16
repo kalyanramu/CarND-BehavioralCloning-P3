@@ -57,13 +57,13 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32):
                 name = os.path.join(datafolder_path, batch_sample[
                     random_camera].strip())
                 img = cv2.imread(name)
+                correct_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 # print(name)
                 # print(type(img))
                 if type(img) == None:
                     print("Error reading file, check file path")
                     break
-                correct_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
+                
                 if augument == True:
                     rand_val = random.random()
                     if rand_val < 0.5:
@@ -73,12 +73,6 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32):
                         flip_img = correct_img
                 else:
                     flip_img = correct_img
-
-                v_delta = .05 if augument else 0
-                crop_img = preprocess(
-                    flip_img,
-                    top_offset=random.uniform(.125 - v_delta, .125 + v_delta),
-                    bottom_offset=random.uniform(.125 - v_delta, .125 + v_delta))
 
                 final_img = flip_img
 

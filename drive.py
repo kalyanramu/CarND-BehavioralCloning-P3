@@ -16,6 +16,7 @@ from keras.models import load_model
 import h5py
 from keras import __version__ as keras_version
 from data_gen import preprocess
+import cv2
 
 sio = socketio.Server()
 app = Flask(__name__)
@@ -63,7 +64,8 @@ def telemetry(sid, data):
 
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
-        proc_image_array = preprocess(image_array,top_offset=0.125,bottom_offset=0.125)
+        proc_image_array = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
+        #proc_image_array = preprocess(image_array,top_offset=0.125,bottom_offset=0.125)
         final_image_array = proc_image_array[None,:,:,:]
 
         #print("Image Array shape:", final_image_array.shape)
