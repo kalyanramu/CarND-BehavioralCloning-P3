@@ -11,10 +11,12 @@ def preprocess(image, top_offset=0.01, bottom_offset=0.01):
     Applies preprocessing pipeline to an image: crops `top_offset` and `bottom_offset`
     portions of image, resizes to 32x128 px and scales pixel values to [0, 1].
     """
+    input_size = image.shape
     top = int(top_offset * image.shape[0])
     bottom = int(bottom_offset * image.shape[0])
     #image = cv2.resize(image[top:-bottom, :], (160, 320))
-    image = sktransform.resize(image[top:-bottom, :], (160, 320, 3))
+    #image = sktransform.resize(image[top:-bottom, :], (160, 320, 3))
+    image = sktransform.resize(image[top:-bottom, :], input_size)
     #print(image.shape)
     return image
 
@@ -26,6 +28,7 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32):
     num_samples = len(df_samples)
     print("Num Samples:", num_samples)
     num_cameras = len(cameras)
+    #Modifying offset
     while 1:  # Loop forever so the generator never terminates
         # sklearn.utils.shuffle(df_samples)
         for offset in range(0, num_samples, batch_size):
@@ -50,10 +53,7 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32):
                 else:
                     random_camera = "center"
 
-                    # Get the image data
-                    # print(datafolder_path)
-                    # print(batch_sample[random_camera])
-                    # Strip white spaces in pd frame
+                #Read file from folder
                 name = os.path.join(datafolder_path, batch_sample[
                     random_camera].strip())
                 img = cv2.imread(name)
@@ -64,6 +64,7 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32):
                     print("Error reading file, check file path")
                     break
                 
+                #Flip image
                 if augument == True:
                     rand_val = random.random()
                     if rand_val < 0.5:
@@ -74,6 +75,10 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32):
                 else:
                     flip_img = correct_img
 
+                #Crop the image
+                #v_delta = .05 if augument else 0
+                #crop_img = preprocess(flip_img,top_offset=random.uniform(.25 - v_delta, .25 + v_delta),bottom_offset=random.uniform(.125 - v_delta, .125 + v_delta))
+                #final_img = crop_img
                 final_img = flip_img
 
                 # Accumulate the data

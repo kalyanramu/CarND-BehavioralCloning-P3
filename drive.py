@@ -64,8 +64,10 @@ def telemetry(sid, data):
 
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        #Modify BGR2RGB using OpenCV
         proc_image_array = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
-        #proc_image_array = preprocess(image_array,top_offset=0.125,bottom_offset=0.125)
+        #Crop the image
+        crop_image_array = preprocess(proc_image_array,top_offset=0.25,bottom_offset=0.125)
         final_image_array = proc_image_array[None,:,:,:]
 
         #print("Image Array shape:", final_image_array.shape)
