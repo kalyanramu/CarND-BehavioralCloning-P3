@@ -28,16 +28,46 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32):
     num_samples = len(df_samples)
     print("Num Samples:", num_samples)
     num_cameras = len(cameras)
-    #Modifying offset
+
+    print("Start of Epoch")
+    #----------------Remove Zero Steer Data---------------#
+    #Indices where steer!=0
+    non_zero_idx= df_samples[df_samples['steering']!=0].index
+    #indices where steer ==0
+    zero_idx=df_samples[df_samples['steering']==0].index
+    #Get subset of zero steer data
+    sel_zero_idx = np.random.choice(zero_idx,int(len(zero_idx)*0.1))
+    #Append non-zero steer and zero-steer data
+    sel_indices= np.concatenate([non_zero_idx,sel_zero_idx])
+    print("Max Index:",np.max(sel_indices))
+    #print(non_zero_idx[0:3])
+
+    #Reset offset to zero at begin of epoch
+    offset =0
+    print("Offset at begin of Epoch: ",offset)
     while 1:  # Loop forever so the generator never terminates
         # sklearn.utils.shuffle(df_samples)
-        for offset in range(0, num_samples, batch_size):
-            batch_samples = df_samples[offset:offset + batch_size]
+        for i in range(1): #Made it one so that code need not be indented from previous version
+            #batch_samples = df_samples[offset:offset + batch_size]
+            #indices = np.array(range(offset,offset + batch_size))%(num_samples-1) #Circular Buffer Index over the rows of the table
+            #indices = sel_indices[offset:offset+batch_size]
+            print("Offset:",offset)
+            seq_indices = np.array(range(offset,offset+batch_size)) #get seq indices
+            #print("Seq Indices:", seq_indices)
+            circular_indices = seq_indices %(len(sel_indices)-1) #As we are doing aug, get circular buffer indices
+            indices = sel_indices[circular_indices] #Get indices for reduced zero-steer data
+            #print("Final Indices:", indices)
+            print(indices)
+            batch_samples = df_samples.iloc[indices] #Don't use .ix, it is buggy
+
+            #print(indices)
             images = []
             angles = []
-            # print(batch_samples) #Debug
-            for index, batch_sample in batch_samples.iterrows():
+
+            for index,batch_sample in batch_samples.iterrows():
                 #name = datafolder_path+'/'+batch_sample['center']
+                #table_index = (index+offset)%num_samples #Cicular Buffer Index over the rows of the table
+                #batch_sample = df_samples[i]
                 steer_angle = float(batch_sample['steering'])
 
                 # Pick random camera : To teach how to steer from left to right, vice-versa
@@ -58,8 +88,7 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32):
                     random_camera].strip())
                 img = cv2.imread(name)
                 correct_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                # print(name)
-                # print(type(img))
+
                 if type(img) == None:
                     print("Error reading file, check file path")
                     break
@@ -84,11 +113,13 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32):
                 # Accumulate the data
                 images.append(final_img)
                 angles.append(steer_angle)
-
+                
+            offset += batch_size
             # trim image to only see section with road
             #X_train = X_train[:,80:,:,:]
             X_train = np.array(images)
             y_train = np.array(angles)
+            
             #print(y_train)
             #print("X shape:",X_train.shape)
             # return sklearn.utils.shuffle(X_train, y_train) #for testing

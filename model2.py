@@ -51,7 +51,8 @@ model.add(Dense(1))
 
 model.compile(optimizer='adam',loss='mse')
 #model.fit(X_train,y_train,validation_split=0.25,batch_size=64,nb_epoch=20,shuffle=True)
-history = model.fit_generator(generator(df_train,datafolder_path="./data/data",augument=True),samples_per_epoch = len(df_train),nb_epoch=10,validation_data=generator(df_valid,datafolder_path="./data/data",augument=True),nb_val_samples=len(df_valid))
+batch_size =32
+history = model.fit_generator(generator(df,datafolder_path="./data/data",augument=True),samples_per_epoch = batch_size*2,nb_epoch=2,validation_data=generator(df_valid,datafolder_path="./data/data",augument=True),nb_val_samples=len(df_valid))
 
 model.save('model.h5')
 
