@@ -46,7 +46,7 @@ class SimplePIController:
 
 
 controller = SimplePIController(0.1, 0.002)
-set_speed = 9
+set_speed = 5
 controller.set_desired(set_speed)
 
 
@@ -64,19 +64,18 @@ def telemetry(sid, data):
 
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
-        #Modify BGR2RGB using OpenCV
+        # Modify BGR2RGB using OpenCV
         proc_image_array = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
-        #Crop the image
-        crop_image_array = preprocess(proc_image_array,top_offset=0.25,bottom_offset=0.125)
-        final_image_array = proc_image_array[None,:,:,:]
-
-        #print("Image Array shape:", final_image_array.shape)
-
+        # Crop the image
+        crop_image_array = preprocess(proc_image_array, top_offset=60, bottom_offset=20)
+        # final_image_array = proc_image_array[None,:,:,:]
+        final_image_array = crop_image_array[None, :, :, :]
+        # print("Image Array shape:", final_image_array.shape)
         steering_angle = float(model.predict(final_image_array, batch_size=1))
-
+        
         throttle = controller.update(float(speed))
 
-        print("steer= {:2f}, throttle={:2f}".format(steering_angle,throttle))
+        print("steer= {:2f}, throttle={:2f}".format(steering_angle, throttle))
         send_control(steering_angle, throttle)
 
         # save frame
