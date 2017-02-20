@@ -33,7 +33,8 @@ INIT = 'glorot_uniform'
 
 model = Sequential()
 #model.add(Lambda(lambda x: x/255.0 -0.5,input_shape=(160, 320, 3)))
-model.add(Lambda(lambda x: x/255.0 -0.5,input_shape=(80, 320, 3)))
+model.add(Lambda(lambda x: x/255.0 -0.5,input_shape=(80, 320, 3))) #Crop Image
+#model.add(Lambda(lambda x: x/255.0 -0.5,input_shape=(80, 320, 1))) #Crop and Gray
 model.add(Convolution2D(16,3,3,activation='relu', name='block1_conv'))
 model.add(MaxPooling2D(pool_size=(2,2),name='block1_pool'))
 model.add(Convolution2D(32,3,3,activation='relu',name='block1_relu'))
@@ -44,9 +45,9 @@ model.add(MaxPooling2D(pool_size=(2,2),name='block2_pool'))
 
 model.add(Flatten())
 model.add(Dense(500,activation='relu',name='block3_fc'))
-model.add(Dropout(0.1))
+model.add(Dropout(0.5))
 model.add(Dense(100,activation='relu',name='block4_fc'))
-model.add(Dropout(0.1))
+model.add(Dropout(0.5))
 model.add(Dense(20,activation='relu',name='block5_fc'))
 model.add(Dense(1))
 
@@ -61,7 +62,7 @@ f = open(filename, "w+")
 f.close()
 
 print("Samples:",len(df))
-history = model.fit_generator(generator(df,datafolder_path="./data/data",augument=True,name="train"),samples_per_epoch = 100*batch_size,nb_epoch=10,validation_data=generator(df_valid,datafolder_path="./data/data",augument=True,name="valid"),nb_val_samples=4*batch_size)
+history = model.fit_generator(generator(df,datafolder_path="./data/data",augument=True,name="train"),samples_per_epoch = 500*batch_size,nb_epoch=10,validation_data=generator(df_valid,datafolder_path="./data/data",augument=True,name="valid"),nb_val_samples=4*batch_size)
 
 model.save('model.h5')
 

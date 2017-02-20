@@ -20,7 +20,11 @@ def preprocess(image, top_offset=20, bottom_offset=20):
     #image = sktransform.resize(image[top:height-bottom, :], input_size)
     #print(image.shape)
     crop_img = image[top_offset:height-bottom_offset]
-    return crop_img
+    #gray_img = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
+    #gray_img_exp = np.expand_dims(gray_img,axis=3)
+    #final_img = gray_img_exp
+    final_img = crop_img
+    return final_img
 
 
 cameras = ["left", "center", "right"]
@@ -33,7 +37,7 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32,name=""
     num_cameras = len(cameras)
     print(name)
     #----------------Remove Zero Steer Data---------------#
-    zero_idx=df_samples[df_samples['steering']< 0.01].index
+    zero_idx=df_samples[abs(df_samples['steering'])< 0.01].index
     print(len(zero_idx))
     #Get subset/Filter zero steer data
     pkeep =0.0 #Keep only X% of samples
@@ -98,8 +102,13 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32,name=""
             #Crop the image
             #v_delta = .05 if augument else 0
             crop_img = preprocess(flip_img,top_offset=60,bottom_offset=20)
+
+            #Convert to Greyscale
+
+
             final_img = crop_img
             #final_img = flip_img
+
 
             # Accumulate the data
             images.append(final_img)
