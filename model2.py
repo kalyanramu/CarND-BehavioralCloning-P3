@@ -51,18 +51,18 @@ model.add(Dropout(0.5))
 model.add(Dense(20,activation='relu',name='block5_fc'))
 model.add(Dense(1))
 
-model.compile(optimizer='adam',loss='mse')
+model.compile(optimizer='adam',loss='mse',lr=1e-4) #Setting this learning rate slow was crucial, 1e-3 was too high
 #model.fit(X_train,y_train,validation_split=0.25,batch_size=64,nb_epoch=20,shuffle=True)
 batch_size = 32
 
 #Log data in training
 filename = "train_log.csv"
-# opening the file with w+ mode truncates the file
-f = open(filename, "w+")
+f=open(filename,'wb')
+np.savetxt(f,np.array([]))
 f.close()
 
 print("Samples:",len(df))
-history = model.fit_generator(generator(df,datafolder_path="./data/data",augument=True,name="train"),samples_per_epoch = 500*batch_size,nb_epoch=10,validation_data=generator(df_valid,datafolder_path="./data/data",augument=True,name="valid"),nb_val_samples=4*batch_size)
+history = model.fit_generator(generator(df,datafolder_path="./data/data",augument=True,opname="train"),samples_per_epoch = 250*batch_size,nb_epoch=10,validation_data=generator(df_valid,datafolder_path="./data/data",augument=True,opname="valid"),nb_val_samples=4*batch_size)
 
 model.save('model.h5')
 
