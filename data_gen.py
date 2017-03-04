@@ -4,6 +4,7 @@ import os
 import numpy as np
 import random
 import skimage.transform as sktransform
+from keras.preprocessing.image import random_shift
 
 # 0.2,0.125
 
@@ -11,7 +12,10 @@ import skimage.transform as sktransform
 def augment_brightness_camera_images(image):
     image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     image1 = np.array(image1, dtype=np.float64)
-    random_bright = 20 + np.random.uniform()
+    if random.random() <= 0.5:
+        random_bright = 0.5 + np.random.uniform()*0.5
+    else:
+        random_bright = 1
     image1[:, :, 2] = image1[:, :, 2] * random_bright
     image1[:, :, 2][image1[:, :, 2] > 255] = 255
     image1 = np.array(image1, dtype=np.uint8)
@@ -26,17 +30,9 @@ def preprocess(image, top_offset=20, bottom_offset=20):
     """
     input_size = image.shape
     height = input_size[0]
-    #top = int(top_offset * image.shape[0])
-    #bottom = int(bottom_offset * image.shape[0])
-    #image = cv2.resize(image[top:-bottom, :], (160, 320))
-    #image = sktransform.resize(image[top:-bottom, :], (160, 320, 3))
-    #image = sktransform.resize(image[top:height-bottom, :], input_size)
-    # print(image.shape)
     crop_img = image[top_offset:height - bottom_offset]
-    #gray_img = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-    #gray_img_exp = np.expand_dims(gray_img,axis=3)
-    #final_img = gray_img_exp
-    final_img = augment_brightness_camera_images(crop_img)
+    #final_img = augment_brightness_camera_images(crop_img)
+    final_img = crop_img
     return final_img
 
 
@@ -103,18 +99,17 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32, opname
             # After adding this, the car was driving fine but keep ending
             # up in lake
             if augument:
-                rand_index = random.randint(1, num_cameras - 1)
+                rand_index = random.randint(0, num_cameras - 1)
                 random_camera = cameras[rand_index]
                 if random_camera == "left":
                     steer_angle += 0.25
                 elif random_camera == "right":
-                    steer_angle -= 0.25
+                    steer_angle -= 0.25 #Best is 0.25
             else:
                 random_camera = "center"
 
             # Read file from folder
-            name = os.path.join(datafolder_path, batch_sample[
-                                random_camera].strip())
+            name = os.path.join(datafolder_path, batch_sample[random_camera].strip())
             img = cv2.imread(name)
             correct_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -132,17 +127,44 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32, opname
 
             # Crop the image
             #v_delta = .05 if augument else 0
-            crop_img = preprocess(flip_img, top_offset=60, bottom_offset=20)
-            final_img = crop_img
-            #final_img = flip_img
+            crop_img = preprocess(flip_img, top_offset=75, bottom_offset=15)
+            #crop_img = flip_img
+            #bright_img = augment_brightness_camera_images(crop_img)
+            
+            if augument and random.random() <= 0.5:
+                shift_img = random_shift(crop_img, 0, 0.2, 0, 1, 2)
+                #bright_img = augment_brightness_camera_images(shift_img)
+                bright_img = shift_img
+            else:
+                bright_img = crop_img
 
+            if augument and random.random() >= 0.5:
+                bright_img = augment_brightness_camera_images(bright_img)
+            
+            # image = bright_img
+            # if augument:
+            # # Add random shadow as a vertical slice of image
+            #     h, w = image.shape[0], image.shape[1]
+            #     [x1, x2] = np.random.choice(w, 2, replace=False)
+            #     k = h / (x2 - x1)
+            #     b = - k * x1
+            #     for i in range(h):
+            #         c = int((i - b) / k)
+            #     image[i, :c, :] = (image[i, :c, :] * .5).astype(np.int32)
+
+            
+            #final_img = flip_img
+            #final_img = crop_img
+            #final_img = image
+
+            final_img = bright_img
             #steer_angle += 0.1*(np.random.rand()-0.5)
             # Accumulate the data
             images.append(final_img)
             angles.append(steer_angle)
             iter +=1
             if offset == 0 and iter == 0:
-                cv2.imwrite("img"+str(offset),final_img)
+                cv2.imwrite("img0.jpg",final_img)
 
         # trim image to only see section with road
         #X_train = X_train[:,80:,:,:]

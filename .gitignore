@@ -1,2 +1,7 @@
 data/*
 *.h5
+*.jpg
+*.jpeg
+run1/*
+run2/*
+*.mp4

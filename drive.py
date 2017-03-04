@@ -46,7 +46,7 @@ class SimplePIController:
 
 
 controller = SimplePIController(0.1, 0.002)
-set_speed = 5
+set_speed = 10
 controller.set_desired(set_speed)
 
 
@@ -67,7 +67,7 @@ def telemetry(sid, data):
         # Modify BGR2RGB using OpenCV
         proc_image_array = cv2.cvtColor(image_array, cv2.COLOR_BGR2RGB)
         # Crop the image
-        crop_image_array = preprocess(proc_image_array, top_offset=60, bottom_offset=20)
+        crop_image_array = preprocess(proc_image_array, top_offset=75, bottom_offset=15)
         # final_image_array = proc_image_array[None,:,:,:]
         final_image_array = crop_image_array[None, :, :, :]
         # print("Image Array shape:", final_image_array.shape)
@@ -77,6 +77,8 @@ def telemetry(sid, data):
 
         print("steer= {:2f}, throttle={:2f}".format(steering_angle, throttle))
         send_control(steering_angle, throttle)
+
+        #cv2.imwrite('ImgDrive.jpg',crop_image_array)
 
         # save frame
         if args.image_folder != '':
