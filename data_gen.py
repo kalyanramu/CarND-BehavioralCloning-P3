@@ -9,17 +9,27 @@ from keras.preprocessing.image import random_shift
 # 0.2,0.125
 
 
+# def augment_brightness_camera_images(image):
+#     image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+#     image1 = np.array(image1, dtype=np.float64)
+#     if random.random() <= 0.5:
+#         random_bright = 0.5 + np.random.uniform()*0.5
+#     else:
+#         random_bright = 1
+#     image1[:, :, 2] = image1[:, :, 2] * random_bright
+#     image1[:, :, 2][image1[:, :, 2] > 255] = 255
+#     image1 = np.array(image1, dtype=np.uint8)
+#     image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
+#     return image1
+
 def augment_brightness_camera_images(image):
-    image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    image1 = np.array(image1, dtype=np.float64)
-    if random.random() <= 0.5:
-        random_bright = 0.5 + np.random.uniform()*0.5
-    else:
-        random_bright = 1
-    image1[:, :, 2] = image1[:, :, 2] * random_bright
-    image1[:, :, 2][image1[:, :, 2] > 255] = 255
-    image1 = np.array(image1, dtype=np.uint8)
-    image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
+    image1 = cv2.cvtColor(image,cv2.COLOR_RGB2HSV)
+    image1 = np.array(image1, dtype = np.float64)
+    random_bright = .5+np.random.uniform()
+    image1[:,:,2] = image1[:,:,2]*random_bright
+    image1[:,:,2][image1[:,:,2]>255]  = 255
+    image1 = np.array(image1, dtype = np.uint8)
+    image1 = cv2.cvtColor(image1,cv2.COLOR_HSV2RGB)
     return image1
 
 
@@ -125,39 +135,36 @@ def generator(df_samples, datafolder_path, augument=False, batch_size=32, opname
             else:
                 flip_img = correct_img
 
+
             # Crop the image
             #v_delta = .05 if augument else 0
             crop_img = preprocess(flip_img, top_offset=75, bottom_offset=15)
             #crop_img = flip_img
             #bright_img = augment_brightness_camera_images(crop_img)
             
-            if augument and random.random() <= 0.5:
+            if augument and random.random() <= 0.45:
                 shift_img = random_shift(crop_img, 0, 0.2, 0, 1, 2)
                 #bright_img = augment_brightness_camera_images(shift_img)
                 bright_img = shift_img
             else:
                 bright_img = crop_img
 
-            if augument and random.random() >= 0.5:
+            if augument:
                 bright_img = augment_brightness_camera_images(bright_img)
             
-            # image = bright_img
-            # if augument:
-            # # Add random shadow as a vertical slice of image
-            #     h, w = image.shape[0], image.shape[1]
-            #     [x1, x2] = np.random.choice(w, 2, replace=False)
-            #     k = h / (x2 - x1)
-            #     b = - k * x1
-            #     for i in range(h):
-            #         c = int((i - b) / k)
-            #     image[i, :c, :] = (image[i, :c, :] * .5).astype(np.int32)
+            image = bright_img
+           
+            if augument:
+            # Add random shadow as a vertical slice of image
+                h, w = image.shape[0], image.shape[1]
+                [x1, x2] = np.random.choice(w, 2, replace=False)
+                k = h / (x2 - x1)
+                b = - k * x1
+                for i in range(h):
+                    c = int((i - b) / k)
+                    image[i, :c, :] = (image[i, :c, :] * .5).astype(np.int32)
 
-            
-            #final_img = flip_img
-            #final_img = crop_img
-            #final_img = image
-
-            final_img = bright_img
+            final_img = image
             #steer_angle += 0.1*(np.random.rand()-0.5)
             # Accumulate the data
             images.append(final_img)

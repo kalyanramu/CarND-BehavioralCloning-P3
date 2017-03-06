@@ -78,7 +78,7 @@ def telemetry(sid, data):
         print("steer= {:2f}, throttle={:2f}".format(steering_angle, throttle))
         send_control(steering_angle, throttle)
 
-        #cv2.imwrite('ImgDrive.jpg',crop_image_array)
+        #cv2.imwrite('ImgDrive.jpg',np.asarray(image))
 
         # save frame
         if args.image_folder != '':
