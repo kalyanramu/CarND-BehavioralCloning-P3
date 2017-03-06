@@ -157,7 +157,9 @@ I used data provided by Udacity for this project. I employed many data augumenta
 
 I used Adam Optimizer with a learning rate = 1e-04 and mean squared error as a loss function. I used 20% of the training data for validation and the model seems to perform quite well after training for 10 epochs.
 
-**Result:**
+
+**4. Result:**
+
 The car drives on Track 1 without any interruptions. However, on Track2 current compile model doesn't finish Track2. However when model2.py is recompiled, sometimes the model generated seems to finish the track 2.
 Here is video of car working on Track 1 and Track 2:
 
