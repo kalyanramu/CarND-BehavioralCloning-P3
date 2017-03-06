@@ -166,8 +166,10 @@ Track1 Drive [video compilation](https://www.youtube.com/watch?v=7Pnnr5gi7ks)
 Track2 Drive [video compilation](https://www.youtube.com/watch?v=4nHSb-Iuny0)
 
 Here is video of car working on Track 1 and not Track 2 with better video quality:
+
 Track1 Drive [video compilation](https://www.youtube.com/watch?v=Xi1hANVMy5k) 
-Track1 Drive [video compilation](https://www.youtube.com/watch?v=Oz6UY5tCFl8)
+
+Track2 Drive [video compilation](https://www.youtube.com/watch?v=Oz6UY5tCFl8)
 
 
 Overall, the model always works on Track1.
